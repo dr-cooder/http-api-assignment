@@ -5,7 +5,44 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
   
   <script>
+    const handleResponse = async (response) => {
+      const resText = await response.text();
+      const contentType = response.headers.get('Content-Type');
 
+      console.log(resText);
+
+      if (contentType === 'application/json') {
+        const parsedResponse = JSON.parse(resText);
+        //h1.textContent = `Name: ${parsedResponse.name}`;
+        //p.textContent = `Age: ${parsedResponse.name}`;
+      } else if (contentType === 'text/xml') {
+        const parsedResponse = new window.DOMParser().parseFromString(resText, 'text/xml');
+        //h1.textContent = `Name: ${parsedResponse.querySelector('name').textContent}`;
+        //p.textContent = `Age: ${parsedResponse.querySelector('age').textContent}`;
+      }
+    }
+
+    const sendFetchRequest = async (url, acceptedType) => {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': acceptedType
+        },
+      });
+
+      handleResponse(response);
+    }
+
+    const init = () => {
+      document.querySelector('#send').onclick = () => {
+        const url = document.querySelector('#page').value;
+        const acceptedType = document.querySelector('#type').value;
+
+        sendFetchRequest(url, acceptedType);
+      };
+    }
+
+    window.onload = init;
   </script>
 </head>
 <body>

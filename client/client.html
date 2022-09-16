@@ -7,19 +7,31 @@
   <script>
     const handleResponse = async (response) => {
       const resText = await response.text();
-      const contentType = response.headers.get('Content-Type');
-
       console.log(resText);
+      
+      const content = document.querySelector('#content');
 
+      const statusDescs = {
+        200: 'Success',
+        400: 'Bad Request',
+        401: 'Unauthorized',
+        403: 'Forbidden',
+        404: 'Not Found',
+        500: 'Internal Service Error',
+        501: 'Not Implemented'
+      };
+      content.innerHTML = `<b>${statusDescs[response.status]??'Error code not implemented by client'}</b>`;
+
+      let displayedResponse;
+      const contentType = response.headers.get('Content-Type');
       if (contentType === 'application/json') {
         const parsedResponse = JSON.parse(resText);
-        //h1.textContent = `Name: ${parsedResponse.name}`;
-        //p.textContent = `Age: ${parsedResponse.name}`;
+        displayedResponse = `<p>Message: ${parsedResponse.message}</p>`;
       } else if (contentType === 'text/xml') {
         const parsedResponse = new window.DOMParser().parseFromString(resText, 'text/xml');
-        //h1.textContent = `Name: ${parsedResponse.querySelector('name').textContent}`;
-        //p.textContent = `Age: ${parsedResponse.querySelector('age').textContent}`;
+        displayedResponse = `<p>Message: ${parsedResponse.querySelector('message').textContent}</p>`;
       }
+      content.innerHTML += displayedResponse;
     }
 
     const sendFetchRequest = async (url, acceptedType) => {
@@ -63,7 +75,6 @@
     </select>
     <button id="send">Send</button>
   </section>
-  <section id="content">
-  </section>
+  <section id="content"></section>
 </body>
 </html>

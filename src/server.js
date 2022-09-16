@@ -8,19 +8,26 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 const urlStruct = {
   '/': htmlHandler.getIndex,
   '/style.css': htmlHandler.getCSS,
+  '/success': dataHandler.success,
+  '/badRequest': dataHandler.badRequest,
+  '/unauthorized': dataHandler.unauthorized,
+  '/forbidden': dataHandler.forbidden,
+  '/internal': dataHandler.internal,
+  '/notImplemented': dataHandler.notImplemented,
   notFound: dataHandler.notFound,
 };
 
 const onRequest = (request, response) => {
   const parsedUrl = url.parse(request.url, true);
-  const acceptedTypes = request.headers.accept.split(',') || ['application/json'];
-  console.log(request.method, parsedUrl, acceptedTypes);
+  const handlerFunction = urlStruct[parsedUrl.pathname];
+  const { query } = parsedUrl;
+  const acceptedTypes = request.headers.accept.split(',');
+  console.log(request.method, parsedUrl.path, acceptedTypes);
 
-  if (urlStruct[parsedUrl.pathname]) {
-    urlStruct[parsedUrl.pathname](request, response, acceptedTypes);
-    // add .query
+  if (handlerFunction) {
+    handlerFunction(request, response, acceptedTypes, query);
   } else {
-    urlStruct.notFound(request, response, acceptedTypes);
+    urlStruct.notFound(request, response, acceptedTypes, query);
   }
 };
 
